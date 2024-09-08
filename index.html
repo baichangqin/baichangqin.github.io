@@ -6,17 +6,17 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://example.com">
-  <title>Hexo</title>
+  <title>bai&#39;s home</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
+<meta property="og:title" content="bai&#39;s home">
 <meta property="og:url" content="http://example.com/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="bai&#39;s home">
+<meta property="og:locale" content="zh_CN">
 <meta property="article:author" content="litten">
 <meta name="twitter:card" content="summary">
   
-    <link rel="alternative" href="/atom.xml" title="Hexo" type="application/atom+xml">
+    <link rel="alternative" href="/atom.xml" title="bai&#39;s home" type="application/atom+xml">
   
   
     <link rel="icon" href="/favicon.png">
@@ -43,7 +43,7 @@
 <div class="intrude-less">
 	<header id="header" class="inner">
 		<a href="/" class="profilepic">
-			<img src="https://pic.imgdb.cn/item/66dd65ced9c307b7e9df3ba4.jpg" class="js-avatar">
+			<img src="img/avatar.jpg" class="js-avatar">
 		</a>
 		<hgroup>
 		  <h1 class="header-author"><a href="/"></a></h1>
@@ -79,12 +79,6 @@
 				
 					<a class="github" target="_blank" href="https://github.com/baichangqin" title="github"><i class="icon-github"></i></a>
 		        
-					<a class="weibo" target="_blank" href="#" title="weibo"><i class="icon-weibo"></i></a>
-		        
-					<a class="rss" target="_blank" href="#" title="rss"><i class="icon-rss"></i></a>
-		        
-					<a class="zhihu" target="_blank" href="#" title="zhihu"><i class="icon-zhihu"></i></a>
-		        
 			</div>
 		</nav>
 	</header>		
@@ -101,7 +95,7 @@
 	<div class="intrude-less">
 		<header id="header" class="inner">
 			<div class="profilepic">
-				<img src="https://pic.imgdb.cn/item/66dd65ced9c307b7e9df3ba4.jpg" class="js-avatar">
+				<img src="img/avatar.jpg" class="js-avatar">
 			</div>
 			<hgroup>
 			  <h1 class="header-author js-header-author"></h1>
@@ -119,12 +113,6 @@
 				<div class="social">
 					
 						<a class="github" target="_blank" href="https://github.com/baichangqin" title="github"><i class="icon-github"></i></a>
-			        
-						<a class="weibo" target="_blank" href="#" title="weibo"><i class="icon-weibo"></i></a>
-			        
-						<a class="rss" target="_blank" href="#" title="rss"><i class="icon-rss"></i></a>
-			        
-						<a class="zhihu" target="_blank" href="#" title="zhihu"><i class="icon-zhihu"></i></a>
 			        
 				</div>
 			</nav>
@@ -152,30 +140,32 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-My-First-Post" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-gitlearning" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2024/09/07/My-First-Post/">My First Post</a>
-    </h1>
-  
-
-        
-        <a href="/2024/09/07/My-First-Post/" class="archive-article-date">
-  	<time datetime="2024-09-07T10:01:07.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2024-09-07</time>
-</a>
-        
-      </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <hr>
-<p>第一篇博客</p>
-<p>很高兴能有这样一个尝试，希望以后我能成为一个技术大佬。</p>
-<p><img src="https://pic.imgdb.cn/item/66dc1bc1d9c307b7e9e3ddce.jpg" alt=" "></p>
+        <h1 id="git-learning"><a href="#git-learning" class="headerlink" title="git-learning"></a>git-learning</h1><h3 id="1-git撤销修改"><a href="#1-git撤销修改" class="headerlink" title="1.git撤销修改"></a>1.git撤销修改</h3><blockquote>
+<ul>
+<li><code>git checkout -- file</code>  可以丢弃工作区的修改。</li>
+</ul>
+<p>一种是readme.txt自修改后还没有被放到暂存区，现在，撤销修改就回到和版本库一模一样的状态；</p>
+<p>一种是readme.txt已经添加到暂存区后，又作了修改，现在，撤销修改就回到添加到暂存区后的状态。</p>
+<p>总之，就是让这个文件回到最近一次git commit或git add时的状态。</p>
+<ul>
+<li><code>git reset HEAD &lt;file&gt; </code>可以把暂存区的修改撤销掉,重新放回工作区。</li>
+</ul>
+</blockquote>
+<h3 id="2-git删除文件"><a href="#2-git删除文件" class="headerlink" title="2.git删除文件"></a>2.git删除文件</h3><blockquote>
+<ul>
+<li>手动删除文件后，用 <code>git status</code> 会提示工作区与版本库的内容不一致。</li>
+</ul>
+<p>此时用<code>git add &lt;file&gt;</code>或<code>git rm &lt;file&gt;</code>都能删除版本库里的此文件，并用commit提交。</p>
+<ul>
+<li><code>git rm test.txt</code> 相当于是删除工作目录中的test.txt文件,并把此次删除操作提交到了暂存区。</li>
+</ul>
+<p> 如果误删使用<code>git restore &lt;file&gt;</code>。</p>
+</blockquote>
 
       
 
@@ -188,7 +178,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2024/09/07/My-First-Post/">展开全文 >></a>
+          <a class="article-more-a" href="/2024/09/08/gitlearning/">展开全文 >></a>
         </p>
       
 
@@ -218,39 +208,29 @@
 
 
   
-    <article id="post-hello-world" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-My-First-Post" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2024/09/07/hello-world/">Hello World</a>
+      <a class="article-title" href="/2024/09/07/My-First-Post/">My First Post</a>
     </h1>
   
 
         
-        <a href="/2024/09/07/hello-world/" class="archive-article-date">
-  	<time datetime="2024-09-07T05:15:15.359Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2024-09-07</time>
+        <a href="/2024/09/07/My-First-Post/" class="archive-article-date">
+  	<time datetime="2024-09-07T10:01:07.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2024-09-07</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+        <hr>
+<p>第一篇博客</p>
+<p>很高兴能有这样一个尝试，希望以后我能成为一个技术大佬。</p>
 
       
 
@@ -259,11 +239,22 @@
     <div class="article-info article-info-index">
       
       
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">-随笔</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
       
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/2024/09/07/hello-world/">展开全文 >></a>
+          <a class="article-more-a" href="/2024/09/07/My-First-Post/">展开全文 >></a>
         </p>
       
 
@@ -384,6 +375,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
             <input type="checkbox" q-on="click:toggleTag(e)" q-attr="checked:showTags">
           </label>
           <ul class="article-tag-list" q-show="showTags">
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">-随笔</a>
+              </li>
             
             <div class="clearfix"></div>
           </ul>
