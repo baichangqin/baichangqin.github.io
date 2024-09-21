@@ -16,7 +16,7 @@
 <meta property="og:description" content="关于Linux文件权限在Linux查看文件时，每一行前有一串字符“rwx”。如例：  drwxr-xr-x   2 root root    drwxr-xr-x  16 root root     drwxr-xr-x  76 root root     drwxr-xr-x   5 root root    -rwxrwxrwx   1 root root &#96;&#96;&#96;">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-09-11T02:48:34.000Z">
-<meta property="article:modified_time" content="2024-09-11T15:39:40.238Z">
+<meta property="article:modified_time" content="2024-09-11T15:52:10.354Z">
 <meta property="article:author" content="litten">
 <meta property="article:tag" content="-随笔">
 <meta name="twitter:card" content="summary">
@@ -61,6 +61,8 @@
 				<li><a href="/">主页</a></li>
 	        
 				<li><a href="/tags/%E9%9A%8F%E7%AC%94/">随笔</a></li>
+	        
+				<li><a href="/tags/frontend">frontend</a></li>
 	        
 			</ul>
 		</nav>
@@ -112,6 +114,8 @@
 			
 				
 			
+				
+			
 			
 			
 			<nav class="header-nav">
@@ -123,12 +127,14 @@
 			</nav>
 
 			<nav class="header-menu js-header-menu">
-				<ul style="width: 50%">
+				<ul style="width: 70%">
 				
 				
-					<li style="width: 50%"><a href="/">主页</a></li>
+					<li style="width: 33.333333333333336%"><a href="/">主页</a></li>
 		        
-					<li style="width: 50%"><a href="/tags/%E9%9A%8F%E7%AC%94/">随笔</a></li>
+					<li style="width: 33.333333333333336%"><a href="/tags/%E9%9A%8F%E7%AC%94/">随笔</a></li>
+		        
+					<li style="width: 33.333333333333336%"><a href="/tags/frontend">frontend</a></li>
 		        
 				</ul>
 			</nav>
@@ -200,7 +206,7 @@ drwxr-xr-x   5 root root
 <span id="more"></span>
 
 <p>除去第一位字母开始，权限都是<strong>三个符号</strong>为一组合，顺序分别是所有者权限,同组用户权限,其他用户组权限。-表示没有这个权限。</p>
-<p>第一位字母表示文件类型：**-：普通文件，d:目录文件，l:链接文件，b:设备文件，c:字符设备文件，p:管道文件 **。</p>
+<p>第一位字母表示文件类型：<u>-：普通文件,d:目录文件,l:链接文件,b:设备文件,c:字符设备文件,p:管道文件</u></p>
 <p>(r,w,x)即为读(read)，写(write)，执行r(recute)。</p>
 <p>如<code>drwxr-xr-x</code>表示d其为目录文件,rwx表示文件所有者有读写执行权，同组用户组有读和执行权限，其他用户组也是有读和执行权限。</p>
 
@@ -454,6 +460,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">-随笔</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">-frontend</a>
               </li>
             
             <div class="clearfix"></div>
