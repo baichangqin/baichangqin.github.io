@@ -177,7 +177,7 @@
       <span class="post-meta-item-icon">
         <i class="fa fa-keyboard-o"></i>
         <span class="post-meta-item-text">  字数统计: </span>
-        <span class="post-count">1字</span>
+        <span class="post-count">292字</span>
       </span>
     </span>
 
@@ -199,7 +199,78 @@
 
     <div class="article-entry" itemprop="articleBody">
       
-        <p>asasasasas</p>
+        <h1 id="mysql的基本操作"><a href="#mysql的基本操作" class="headerlink" title="mysql的基本操作"></a>mysql的基本操作</h1><h2 id="1-数据库操作"><a href="#1-数据库操作" class="headerlink" title="1.数据库操作"></a>1.数据库操作</h2><ul>
+<li><p>创建数据库</p>
+<p><strong>创建数据库</strong>:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> DATABASE database_name;<span class="operator">*</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>选择数据库</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">USE database_name;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>删除数据库</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DROP</span> DATABASE database_name;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="2-表操作"><a href="#2-表操作" class="headerlink" title="2.表操作"></a>2.表操作</h2><ul>
+<li><p>创建表</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> table_name (</span><br><span class="line">    column1 datatype constraints(<span class="keyword">not</span> <span class="keyword">null</span>,<span class="keyword">unique</span>,<span class="keyword">default</span>,AUTO_INCREMENT等)，</span><br><span class="line">    column2 datatype constraints，</span><br><span class="line">    ...</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p><strong>datatype</strong>:</p>
+<blockquote>
+<p>INT	–整数</p>
+<p>DECIMAL	–小数,a表示总共有几位数，b表示有几位小数   例子:DECIMAL(3,2)-&gt;2.33</p>
+<p>VARCHAR(number)	–字符串</p>
+<p>DATE	–‘YYYY-MM-DD’ 日期</p>
+<p>TIMESTAMP	–’YYYY-MM-DD HH:MM:SS’ 记录时间</p>
+</blockquote>
+</li>
+<li><p>查看表结构</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DESCRIBE</span> table_name;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>添加新列</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table_name <span class="keyword">ADD</span> colume_name datatype;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>删除列</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">TABLE</span> table_name <span class="keyword">DROP</span> <span class="keyword">COLUMN</span> colume_name;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>重命名列</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> table_name CHANGE old_colume_name new_column_name datatype;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>重命名表</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> old_table_name RENAME <span class="keyword">TO</span> new_table_name;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>删除表</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> table_name;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="3-数据操作"><a href="#3-数据操作" class="headerlink" title="3.数据操作"></a>3.数据操作</h2><ul>
+<li><p>插入数据</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> table_name (colume1,colume2,...) <span class="keyword">VALUES</span> (value1,value2,...);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查询数据</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> table_name</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> colume1,colume2 <span class="keyword">FROM</span> table_name <span class="keyword">WHERE</span> <span class="keyword">condition</span>;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> table_name <span class="keyword">ORDER</span> <span class="keyword">BY</span> colume_name (<span class="keyword">ASC</span><span class="operator">/</span><span class="keyword">DESC</span>);(默认<span class="keyword">ASC</span>由低到高，<span class="keyword">DESC</span>则是由高到低)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> table_name LIMIT number;(只输出前number的数据)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> table_name <span class="keyword">ORDER</span> <span class="keyword">BY</span> colume_name1,colume_name2;(先按colume1排,再按colume2排)</span><br></pre></td></tr></table></figure>
+
+
+</li>
+<li><p>更新数据</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span> table_name <span class="keyword">SET</span> colume1 <span class="operator">=</span> value1 <span class="keyword">WHERE</span> <span class="keyword">condition</span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>删除数据</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DELETE</span> <span class="keyword">FROM</span> table_name <span class="keyword">WHERE</span> <span class="keyword">condition</span>;	</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="4-索引操作"><a href="#4-索引操作" class="headerlink" title="4.索引操作"></a>4.索引操作</h2><ul>
+<li><p>创建索引</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> INDEX index_name <span class="keyword">ON</span> table_name (colume_name);	</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>删除索引</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DROP</span> INDEX index_name <span class="keyword">ON</span> table_name;</span><br></pre></td></tr></table></figure></li>
+</ul>
 
       
 
