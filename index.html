@@ -63,6 +63,8 @@
 	        
 				<li><a href="/tags/mysql">mysql</a></li>
 	        
+				<li><a href="/tags/ctf">ctf</a></li>
+	        
 			</ul>
 		</nav>
 		<nav class="header-smart-menu">
@@ -117,6 +119,8 @@
 			
 				
 			
+				
+			
 			
 			
 			<nav class="header-nav">
@@ -131,13 +135,15 @@
 				<ul style="width: 70%">
 				
 				
-					<li style="width: 25%"><a href="/">主页</a></li>
+					<li style="width: 20%"><a href="/">主页</a></li>
 		        
-					<li style="width: 25%"><a href="/tags/%E9%9A%8F%E7%AC%94/">随笔</a></li>
+					<li style="width: 20%"><a href="/tags/%E9%9A%8F%E7%AC%94/">随笔</a></li>
 		        
-					<li style="width: 25%"><a href="/tags/frontend">frontend</a></li>
+					<li style="width: 20%"><a href="/tags/frontend">frontend</a></li>
 		        
-					<li style="width: 25%"><a href="/tags/mysql">mysql</a></li>
+					<li style="width: 20%"><a href="/tags/mysql">mysql</a></li>
+		        
+					<li style="width: 20%"><a href="/tags/ctf">ctf</a></li>
 		        
 				</ul>
 			</nav>
@@ -153,6 +159,377 @@
           </div>
           <div id="js-content" class="content-ll">
             
+  
+    <article id="posts-sql注入步骤" class="article article-type-posts  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2024/10/24/sql%E6%B3%A8%E5%85%A5%E6%AD%A5%E9%AA%A4/">SQL注入</a>
+    </h1>
+  
+
+        
+        <a href="/2024/10/24/sql%E6%B3%A8%E5%85%A5%E6%AD%A5%E9%AA%A4/" class="archive-article-date">
+  	<time datetime="2024-10-23T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2024-10-24</time>
+</a>
+        <!-- 需要添加的位置 -->
+        <!-- 开始添加字数统计-->
+        
+          <div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <span class="post-count">755字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">2分</span>
+      </span>
+    </span>
+</div>
+          
+        <!-- 添加完成 -->
+
+        
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="SQL注入："><a href="#SQL注入：" class="headerlink" title="SQL注入："></a>SQL注入：</h2><ul>
+<li><h3 id="注入步骤："><a href="#注入步骤：" class="headerlink" title="注入步骤："></a>注入步骤：</h3><ol>
+<li><p><strong>先加单引号测试是否报错</strong>：</p>
+<ul>
+<li>如果报错，说明存在SQL注入点，且可能是<strong>字符型</strong>字段。</li>
+<li>如果<strong>不报错</strong>，不能立即排除SQL注入的可能性，因为数字型可能有容错机制。</li>
+</ul>
+</li>
+<li><p><strong>进一步通过双引号确认字符型</strong>：</p>
+<ul>
+<li>如果加一个引号后报错，下一步可以尝试在原位置添加两个引号，例如构造 <code>admin&#39;&#39;</code>。如果<strong>不再报错</strong>，说明该字段是<strong>字符型</strong>。</li>
+<li>如果<strong>继续报错</strong>，可能需要进一步检查字段的其他注入特性。</li>
+</ul>
+</li>
+<li><p><strong>测试是否为数字型</strong>：</p>
+<ul>
+<li><p>如果第一步中加引号没有报错，可以尝试使用 </p>
+<p><code>and 1=1</code>和<code>and 1=2</code>测试数字型字段。</p>
+<ul>
+<li><strong>AND 1&#x3D;1</strong> 应该返回正常结果。</li>
+<li><strong>AND 1&#x3D;2</strong> 应该返回不同的结果（空结果或错误），说明字段是<strong>数字型</strong>。</li>
+</ul>
+</li>
+<li><p>如果 <code>AND 1=1</code> 和 <code>AND 1=2</code> 返回结果不同，基本可以确认该字段为数字型。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>回显检查</strong>：(下面都以字符型为例)</p>
+<ul>
+<li><p>字符型：<code>1&#39; order by i #</code>，刚开始我只是照搬网上的做法，而没有思考为什么可以用<code>order by </code>，它判断的是什么(甚至我之前一直以为它判断的是行数)。</p>
+<p>注意<code>order by i</code>(i表示任意大于等于1的数字)<strong>表示将表中的数据按第三列的数据排序</strong>(默认进行升序排序，即从小到大排)。如果此时报错，说明不存在第i列。</p>
+<p>回显检查语句：<code>-1&#39; UNION select 1,2,3 #</code>(假设表中有三列)，为什么前面是<code>-1&#39;</code>呢?<strong>回想<code>UNION</code>语句的作用：是 SQL 中用于合并两个或多个 <code>SELECT</code> 查询结果集的操作符。它的主要作用是将多个查询的结果合并成一个结果集，并去除重复的行</strong>。</p>
+<p><code>1&#39; UNION select 1,2,3 #</code>：</p>
+</li>
+</ul>
+<p><img src="https://img.picui.cn/free/2024/10/24/671a09a080b57.png" alt="image-20241024161329435"></p>
+<p>​	<code>-1&#39; UNION select 1,2,3 #</code>：</p>
+<p><img src="https://img.picui.cn/free/2024/10/24/671a09c73289e.png" alt="image-20241024161513786"></p>
+<p>​		<strong>如果题目的网页只能显示一个查询结果的话，<code>1&#39; UNION select 1,2,3 #</code>语句中<code>select 1,2,3</code>就不会显示在页面上。要保证其显示在页面上，就要使前面的查询结果为空。</strong></p>
+<ul>
+<li><p>盲注爆表名：<code>1&#39; and binary substr((select table_name from information_schema.tables where table_schema=database()))</code>，为什么这里使用<code>1&#39;</code>而不是用<code>-1&#39;</code>呢？</p>
+<p>盲注返回”是”或”不是”(“存在”或”不存在”)，它表示<code>id=&#39;1&#39;</code>(假设后端查询语句是<code>select * from users where id=&#39;$id&#39;</code>)的数据<strong>能不能输出</strong>。你可能想说<code>id=1</code>的数据不是肯定存在吗?它是存在没错，<strong>可是别忘了判断语句是<code>1&#39; and binary substr((select table_name from information_schema.tables where table_schema=database()))</code>，如果<code>and</code>后的结果为否，则整条语句条件为否，即<code>id=1</code>的数据不能输出，页面返回”不是”。</strong></p>
+</li>
+</ul>
+<ul>
+<li><strong>有回显时</strong>，尝试联合查询注入、报错注入</li>
+<li><strong>无回显时</strong>，可以尝试布尔盲注、时间盲注方法</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      <!--显示阅读次数-->
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">-ctf</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+       
+        
+      
+
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="posts-文件上传姿势" class="article article-type-posts  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2024/10/24/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E5%A7%BF%E5%8A%BF/">文件上传</a>
+    </h1>
+  
+
+        
+        <a href="/2024/10/24/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E5%A7%BF%E5%8A%BF/" class="archive-article-date">
+  	<time datetime="2024-10-23T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2024-10-24</time>
+</a>
+        <!-- 需要添加的位置 -->
+        <!-- 开始添加字数统计-->
+        
+          <div style="margin-top:10px;">
+    <span class="post-time">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-keyboard-o"></i>
+        <span class="post-meta-item-text">  字数统计: </span>
+        <span class="post-count">2.7k字</span>
+      </span>
+    </span>
+
+    <span class="post-time">
+      &nbsp; | &nbsp;
+      <span class="post-meta-item-icon">
+        <i class="fa fa-hourglass-half"></i>
+        <span class="post-meta-item-text">  阅读时长: </span>
+        <span class="post-count">12分</span>
+      </span>
+    </span>
+</div>
+          
+        <!-- 添加完成 -->
+
+        
+      </header>
+    
+
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h2><ol>
+<li><p>文件上传的前端验证(js验证)</p>
+<p>贴一下简单的前端验证的代码:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">checkFile</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> file = <span class="variable language_">document</span>.<span class="title function_">getElementsByName</span>(<span class="string">&#x27;upload_file&#x27;</span>)[<span class="number">0</span>].<span class="property">value</span>;</span><br><span class="line">    <span class="keyword">if</span> (file == <span class="literal">null</span> || file == <span class="string">&quot;&quot;</span>) &#123;</span><br><span class="line">        <span class="title function_">alert</span>(<span class="string">&quot;请选择要上传的文件!&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//定义允许上传的文件类型</span></span><br><span class="line">    <span class="keyword">var</span> allow_ext = <span class="string">&quot;.jpg|.png|.gif&quot;</span>;</span><br><span class="line">    <span class="comment">//提取上传文件的类型</span></span><br><span class="line">    <span class="keyword">var</span> ext_name = file.<span class="title function_">substring</span>(file.<span class="title function_">lastIndexOf</span>(<span class="string">&quot;.&quot;</span>));</span><br><span class="line">    <span class="comment">//判断上传文件类型是否允许上传</span></span><br><span class="line">    <span class="keyword">if</span> (allow_ext.<span class="title function_">indexOf</span>(ext_name + <span class="string">&quot;|&quot;</span>) == -<span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">var</span> errMsg = <span class="string">&quot;该文件不允许上传，请上传&quot;</span> + allow_ext + <span class="string">&quot;类型的文件,当前文件类型为：&quot;</span> + ext_name;</span><br><span class="line">        <span class="title function_">alert</span>(errMsg);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下面是详细解释:</p>
+<ul>
+<li><p><code>document.getElementsByName(&#39;upload_file&#39;)[0].value</code>:<code>document</code>代表当前网页文档，<code>getElementsByName</code>表示提取当前网页中所有<code>name</code>为’upload_file’的元素。<code>document.getElementsByName(&#39;upload_file&#39;)[0].value</code>是第一个<code>name</code>为’upload_file’元素的值。</p>
+</li>
+<li><p><code>file.substring(file.lastIndexOf(&quot;.&quot;))</code>:</p>
+<p><code>substring</code>函数语法：<code>string.substring(startIndex, endIndex)</code>，(<code>startIndex</code>, <code>endIndex</code>都是字符串的第几项)。<code>IndexOf</code>函数语法：<code>string.indexOf(searchValue, fromIndex)</code>。<code>fromIndex</code>表示<code>searchValue</code>第一次出现的位置，返回该位置的数字。若没有找到，则返回-1。同理，<code>lastIndexOf(&quot;.&quot;)</code>返回最后一次的<code>.</code>号的所在位置。</p>
+<p>file存储了上传的文件的文件名，<code>file.substring(file.lastIndexOf(&quot;.&quot;))</code>表示最后一个<code>.</code>号作为开始索引(包含此字符)，提取到字符串结束。</p>
+</li>
+<li><p><code>allow_ext.indexOf(ext_name + &quot;|&quot;) == -1</code>：<code>ext_name</code>是文件的后缀名，在<code>allow_ext</code>查找<code>ext_name</code>。</p>
+</li>
+</ul>
+</li>
+<li><p>MIME验证：</p>
+<p>MIME检测是在服务端进行的。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$is_upload</span> = <span class="literal">false</span>;</span><br><span class="line"><span class="variable">$msg</span> = <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;submit&#x27;</span>])) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="title function_ invoke__">file_exists</span>(UPLOAD_PATH)) &#123;</span><br><span class="line">        <span class="keyword">if</span> ((<span class="variable">$_FILES</span>[<span class="string">&#x27;upload_file&#x27;</span>][<span class="string">&#x27;type&#x27;</span>] == <span class="string">&#x27;image/jpeg&#x27;</span>) || (<span class="variable">$_FILES</span>[<span class="string">&#x27;upload_file&#x27;</span>][<span class="string">&#x27;type&#x27;</span>] == <span class="string">&#x27;image/png&#x27;</span>) || (<span class="variable">$_FILES</span>[<span class="string">&#x27;upload_file&#x27;</span>][<span class="string">&#x27;type&#x27;</span>] == <span class="string">&#x27;image/gif&#x27;</span>)) &#123;</span><br><span class="line">            <span class="variable">$temp_file</span> = <span class="variable">$_FILES</span>[<span class="string">&#x27;upload_file&#x27;</span>][<span class="string">&#x27;tmp_name&#x27;</span>];<span class="comment">//将文件保存的临时目录储存在$temp_file中</span></span><br><span class="line">            <span class="variable">$img_path</span> = UPLOAD_PATH . <span class="string">&#x27;/&#x27;</span> . <span class="variable">$_FILES</span>[<span class="string">&#x27;upload_file&#x27;</span>][<span class="string">&#x27;name&#x27;</span>]            </span><br><span class="line">            <span class="keyword">if</span> (<span class="title function_ invoke__">move_uploaded_file</span>(<span class="variable">$temp_file</span>, <span class="variable">$img_path</span>)) &#123;</span><br><span class="line">                <span class="variable">$is_upload</span> = <span class="literal">true</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="variable">$msg</span> = <span class="string">&#x27;上传出错！&#x27;</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="variable">$msg</span> = <span class="string">&#x27;文件类型不正确，请重新上传！&#x27;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="variable">$msg</span> = UPLOAD_PATH.<span class="string">&#x27;文件夹不存在,请手工创建！&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><code>isset($_POST[&#39;submit&#39;])</code>：<code>isset()</code>是php内置函数，语法：<code>isset(mixed $var, mixed ...$vars): bool</code>，用于<strong>检测一个变量是否已经设置，返回布尔值</strong>。</p>
+</li>
+<li><p><code>$_POST</code>和<code>$_FILES</code>：<code>$_POST</code>和<code>$_FILES</code>是php中的关联数组，以键值对的形式存储数据。其中<code>$_POST</code>主要存储<strong>表单数据</strong>，而<code>$_FILES</code>主要处理<strong>上传的文件</strong>。</p>
+<p>例子：<code>$_POST</code>：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_ invoke__">Array</span></span><br><span class="line">(</span><br><span class="line">    [username] =&gt; john_doe</span><br><span class="line">    [password] =&gt; <span class="number">12345</span></span><br><span class="line">    [submit] =&gt; 提交</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p><code>$_FILES</code>：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_ invoke__">Array</span></span><br><span class="line">(</span><br><span class="line">    [upload_file] =&gt; <span class="title function_ invoke__">Array</span></span><br><span class="line">        (</span><br><span class="line">            [name] =&gt; image.jpg</span><br><span class="line">            [type] =&gt; image/jpeg</span><br><span class="line">            [tmp_name] =&gt; /tmp/phpYzdqkD</span><br><span class="line">            [error] =&gt; <span class="number">0</span></span><br><span class="line">            [size] =&gt; <span class="number">54321</span></span><br><span class="line">        )</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>file_exists()</code> 是一个 PHP 内置函数，语法：<code> file_exists(string $filename):bool</code>,用于<strong>检查给定的文件或目录是否存在</strong>。</p>
+</li>
+<li><p><code>move_uploaded_file</code>是是一个 PHP 内置函数，语法：<code>move_uploaded_file(string $from, string $to):bool</code>，用于<strong>将上传的文件从其临时目录移动到目标目录</strong>。</p>
+</li>
+</ul>
+</li>
+<li><p>黑名单验证：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$is_upload</span> = <span class="literal">false</span>;</span><br><span class="line"><span class="variable">$msg</span> = <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;submit&#x27;</span>])) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="title function_ invoke__">file_exists</span>(UPLOAD_PATH)) &#123;</span><br><span class="line">        <span class="variable">$deny_ext</span> = <span class="keyword">array</span>(<span class="string">&#x27;.asp&#x27;</span>,<span class="string">&#x27;.aspx&#x27;</span>,<span class="string">&#x27;.php&#x27;</span>,<span class="string">&#x27;.jsp&#x27;</span>);</span><br><span class="line">        <span class="variable">$file_name</span> = <span class="title function_ invoke__">trim</span>(<span class="variable">$_FILES</span>[<span class="string">&#x27;upload_file&#x27;</span>][<span class="string">&#x27;name&#x27;</span>]);</span><br><span class="line">        <span class="variable">$file_name</span> = <span class="title function_ invoke__">deldot</span>(<span class="variable">$file_name</span>);<span class="comment">//删除文件名末尾的点</span></span><br><span class="line">        <span class="variable">$file_ext</span> = <span class="title function_ invoke__">strrchr</span>(<span class="variable">$file_name</span>, <span class="string">&#x27;.&#x27;</span>);</span><br><span class="line">        <span class="variable">$file_ext</span> = <span class="title function_ invoke__">strtolower</span>(<span class="variable">$file_ext</span>); <span class="comment">//转换为小写</span></span><br><span class="line">        <span class="variable">$file_ext</span> = <span class="title function_ invoke__">str_ireplace</span>(<span class="string">&#x27;::$DATA&#x27;</span>, <span class="string">&#x27;&#x27;</span>, <span class="variable">$file_ext</span>);<span class="comment">//去除字符串::$DATA</span></span><br><span class="line">        <span class="variable">$file_ext</span> = <span class="title function_ invoke__">trim</span>(<span class="variable">$file_ext</span>); <span class="comment">//收尾去空</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(!<span class="title function_ invoke__">in_array</span>(<span class="variable">$file_ext</span>, <span class="variable">$deny_ext</span>)) &#123;</span><br><span class="line">            <span class="variable">$temp_file</span> = <span class="variable">$_FILES</span>[<span class="string">&#x27;upload_file&#x27;</span>][<span class="string">&#x27;tmp_name&#x27;</span>];</span><br><span class="line">            <span class="variable">$img_path</span> = UPLOAD_PATH.<span class="string">&#x27;/&#x27;</span>.<span class="title function_ invoke__">date</span>(<span class="string">&quot;YmdHis&quot;</span>).<span class="title function_ invoke__">rand</span>(<span class="number">1000</span>,<span class="number">9999</span>).<span class="variable">$file_ext</span>;            </span><br><span class="line">            <span class="keyword">if</span> (<span class="title function_ invoke__">move_uploaded_file</span>(<span class="variable">$temp_file</span>,<span class="variable">$img_path</span>)) &#123;</span><br><span class="line">                 <span class="variable">$is_upload</span> = <span class="literal">true</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="variable">$msg</span> = <span class="string">&#x27;上传出错！&#x27;</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="variable">$msg</span> = <span class="string">&#x27;不允许上传.asp,.aspx,.php,.jsp后缀文件！&#x27;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="variable">$msg</span> = UPLOAD_PATH . <span class="string">&#x27;文件夹不存在,请手工创建！&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><code>trim()</code> 是 PHP 中的一个字符串处理函数，用于去除字符串首尾的空格。如”  Hello World  “会变成”Hello World”。</p>
+</li>
+<li><p><code>strrchr()</code> 是 PHP 中的一个字符串处理函数，语法：<code>string strrchr(string $haystack, string $needle)</code></p>
+<p>(<strong>$haystack</strong>：要搜索的字符串。**$needle**：要查找的字符或字符串)</p>
+<p>其用于查找字符串中最后一次出现指定字符的位置，并返回<strong>该字符及其后面的所有字符</strong>。</p>
+</li>
+<li><p><code>strtolower()</code>是 PHP 中的一个内置函数，语法：<code>strtolower(string $string)</code>，用于将字符串中的所有字母转换为小写字母。</p>
+</li>
+<li><p><code>str_ireplace()</code>是 PHP 中的一个字符串替换函数，<strong>且替换时会忽略大小写</strong>。语法：<code>str_ireplace(mixed $search, mixed $replace, mixed $subject, int &amp;$count = null)</code>。(<code>$search</code>是将被要替换的字符串，<code>$replace</code>是替换它的字符串，<code>$subject</code>表示在哪个字符串进行替换操作，如果设置了<code>&amp;$count</code>,<code>&amp;$ount</code>将用于返回替换的次数）注意替换时，只要字符串内还存在要被替换的字符，就会继续替换。</p>
+</li>
+<li><p><code>in_array</code>是PHP的一个内置函数，语法：<code>in_array(mixed $searched, array $origin, bool $strict = false):bool</code>(<code>$strict</code>表示是否严格比较)</p>
+</li>
+<li><p><code>date(&quot;YmdHis&quot;)</code>，<code>data()</code>是一个 PHP 函数，用于格式化当前日期和时间。<code>YmdHis</code>中大写表示用24小时制，小写表示用12小时制，其中’i’表示’minute’(分钟)。</p>
+</li>
+</ul>
+</li>
+<li><p>白名单对文件后缀的验证：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$is_upload</span> = <span class="literal">false</span>;</span><br><span class="line"><span class="variable">$msg</span> = <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;submit&#x27;</span>]))&#123;</span><br><span class="line">    <span class="variable">$ext_arr</span> = <span class="keyword">array</span>(<span class="string">&#x27;jpg&#x27;</span>,<span class="string">&#x27;png&#x27;</span>,<span class="string">&#x27;gif&#x27;</span>);</span><br><span class="line">    <span class="variable">$file_ext</span> = <span class="title function_ invoke__">substr</span>(<span class="variable">$_FILES</span>[<span class="string">&#x27;upload_file&#x27;</span>][<span class="string">&#x27;name&#x27;</span>],<span class="title function_ invoke__">strrpos</span>(<span class="variable">$_FILES</span>[<span class="string">&#x27;upload_file&#x27;</span>][<span class="string">&#x27;name&#x27;</span>],<span class="string">&quot;.&quot;</span>)+<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">if</span>(<span class="title function_ invoke__">in_array</span>(<span class="variable">$file_ext</span>,<span class="variable">$ext_arr</span>))&#123;</span><br><span class="line">        <span class="variable">$temp_file</span> = <span class="variable">$_FILES</span>[<span class="string">&#x27;upload_file&#x27;</span>][<span class="string">&#x27;tmp_name&#x27;</span>];</span><br><span class="line">        <span class="variable">$img_path</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;save_path&#x27;</span>].<span class="string">&quot;/&quot;</span>.<span class="title function_ invoke__">rand</span>(<span class="number">10</span>, <span class="number">99</span>).<span class="title function_ invoke__">date</span>(<span class="string">&quot;YmdHis&quot;</span>).<span class="string">&quot;.&quot;</span>.<span class="variable">$file_ext</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(<span class="title function_ invoke__">move_uploaded_file</span>(<span class="variable">$temp_file</span>,<span class="variable">$img_path</span>))&#123;</span><br><span class="line">            <span class="variable">$is_upload</span> = <span class="literal">true</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="variable">$msg</span> = <span class="string">&#x27;上传出错！&#x27;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="variable">$msg</span> = <span class="string">&quot;只允许上传.jpg|.png|.gif类型文件！&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>substr</code>是PHP中的一个内置函数，语法：<code>substr(string $string, int $start, int $length = null): string</code>，用于从字符串中提取子字符串。(<code>$length</code>表示要提取的字符数。如果省略，<code>substr</code>会提取从起始位置到字符串末尾的所有字符。如果指定了负数，则表示从提取的字符串的末尾开始计算的字符数，此时不需设置<code>$start</code>)</li>
+<li><code>strrpos</code>是PHP中的一个字符串函数，语法：<code>strrpos(string $haystack, string $needle): int|false</code>，用于查找字符串中<strong>最后一次出现指定字符或子字符串的位置</strong>。(从后往前读取时白名单绕过的关键~！)</li>
+</ul>
+</li>
+<li><p>白名单对文件内容的验证：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getReailFileType</span>(<span class="params"><span class="variable">$filename</span></span>)</span>&#123;</span><br><span class="line">    <span class="variable">$file</span> = <span class="title function_ invoke__">fopen</span>(<span class="variable">$filename</span>, <span class="string">&quot;rb&quot;</span>);</span><br><span class="line">    <span class="variable">$bin</span> = <span class="title function_ invoke__">fread</span>(<span class="variable">$file</span>, <span class="number">2</span>); <span class="comment">//只读2字节</span></span><br><span class="line">    <span class="title function_ invoke__">fclose</span>(<span class="variable">$file</span>);</span><br><span class="line">    <span class="variable">$strInfo</span> = @<span class="title function_ invoke__">unpack</span>(<span class="string">&quot;C2chars&quot;</span>, <span class="variable">$bin</span>);    </span><br><span class="line">    <span class="variable">$typeCode</span> = <span class="title function_ invoke__">intval</span>(<span class="variable">$strInfo</span>[<span class="string">&#x27;chars1&#x27;</span>].<span class="variable">$strInfo</span>[<span class="string">&#x27;chars2&#x27;</span>]);    </span><br><span class="line">    <span class="variable">$fileType</span> = <span class="string">&#x27;&#x27;</span>;    </span><br><span class="line">    <span class="keyword">switch</span>(<span class="variable">$typeCode</span>)&#123;      </span><br><span class="line">        <span class="keyword">case</span> <span class="number">255216</span>:            </span><br><span class="line">            <span class="variable">$fileType</span> = <span class="string">&#x27;jpg&#x27;</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> <span class="number">13780</span>:            </span><br><span class="line">            <span class="variable">$fileType</span> = <span class="string">&#x27;png&#x27;</span>;</span><br><span class="line">            <span class="keyword">break</span>;        </span><br><span class="line">        <span class="keyword">case</span> <span class="number">7173</span>:            </span><br><span class="line">            <span class="variable">$fileType</span> = <span class="string">&#x27;gif&#x27;</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:            </span><br><span class="line">            <span class="variable">$fileType</span> = <span class="string">&#x27;unknown&#x27;</span>;</span><br><span class="line">        &#125;    </span><br><span class="line">        <span class="keyword">return</span> <span class="variable">$fileType</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$is_upload</span> = <span class="literal">false</span>;</span><br><span class="line"><span class="variable">$msg</span> = <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;submit&#x27;</span>]))&#123;</span><br><span class="line">    <span class="variable">$temp_file</span> = <span class="variable">$_FILES</span>[<span class="string">&#x27;upload_file&#x27;</span>][<span class="string">&#x27;tmp_name&#x27;</span>];</span><br><span class="line">    <span class="variable">$file_type</span> = <span class="title function_ invoke__">getReailFileType</span>(<span class="variable">$temp_file</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(<span class="variable">$file_type</span> == <span class="string">&#x27;unknown&#x27;</span>)&#123;</span><br><span class="line">        <span class="variable">$msg</span> = <span class="string">&quot;文件未知，上传失败！&quot;</span>;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="variable">$img_path</span> = UPLOAD_PATH.<span class="string">&quot;/&quot;</span>.<span class="title function_ invoke__">rand</span>(<span class="number">10</span>, <span class="number">99</span>).<span class="title function_ invoke__">date</span>(<span class="string">&quot;YmdHis&quot;</span>).<span class="string">&quot;.&quot;</span>.<span class="variable">$file_type</span>;</span><br><span class="line">        <span class="keyword">if</span>(<span class="title function_ invoke__">move_uploaded_file</span>(<span class="variable">$temp_file</span>,<span class="variable">$img_path</span>))&#123;</span><br><span class="line">            <span class="variable">$is_upload</span> = <span class="literal">true</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="variable">$msg</span> = <span class="string">&quot;上传出错！&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><code>$file = fopen($filename, &quot;rb&quot;)</code>:<code>$filename</code>是文件存储路径，<code>&quot;rb&quot;</code>是指以二进制模式(b)读取(r)。</p>
+</li>
+<li><p><code>fread()</code> 是 PHP 中用于从打开的文件中读取数据的函数，语法： <code>fread(resource $handle, int $length):string</code>，<code>$resource</code>是要读取的文件的句柄，<code>$length</code>是要读取的字节数。</p>
+</li>
+<li><p><code>$strInfo = @unpack(&quot;C2chars&quot;, $bin)</code>：<code>unpack</code> 函数用于将二进制字符串解析为易于操作的数组格式，语法：<code>unpack(string $format, string $data):array</code>，<code>&quot;C2chars&quot;</code>由三部分组成：”C”表示将数据作为无符号字符（即 0 到 255 的整数）读取。(有符号则是-128到127)。”2”表示要读取的字节数。”chars”表示返回的数组中键的名称，分别是[chars1],[chars2]。</p>
+</li>
+<li><p><code>intval()</code> 是 PHP 中用于将变量转换为整数类型的函数。它可以将字符串、浮点数或其他数据类型转换为整数。语法：<code>intval(mixed $var, int $base = 10):int</code>。<code>mixed $var</code>表示要转换的变量，可以是字符串，浮点数，布尔值；<code>$base</code>表示要转换成的进制数，默认为10。</p>
+</li>
+<li><p>附图片马生成命令：<code>copy origin.jpg/b +1.php webshell.jpg</code></p>
+<p><code>origin.jpg/b</code>：表示以二进制模式打开 <code>origin.jpg</code> 文件。</p>
+<p><code>+1.php</code>：表示将 <code>1.php</code> 文件的内容附加到 <code>origin.jpg</code> 的末尾。</p>
+<p><code>webshell.jpg</code>：这是目标文件名，最终会创建或覆盖这个文件。</p>
+</li>
+</ul>
+</li>
+<li><p>条件竞争：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$is_upload</span> = <span class="literal">false</span>;</span><br><span class="line"><span class="variable">$msg</span> = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;submit&#x27;</span>]))&#123;</span><br><span class="line">    <span class="variable">$ext_arr</span> = <span class="keyword">array</span>(<span class="string">&#x27;jpg&#x27;</span>,<span class="string">&#x27;png&#x27;</span>,<span class="string">&#x27;gif&#x27;</span>);</span><br><span class="line">    <span class="variable">$file_name</span> = <span class="variable">$_FILES</span>[<span class="string">&#x27;upload_file&#x27;</span>][<span class="string">&#x27;name&#x27;</span>];</span><br><span class="line">    <span class="variable">$temp_file</span> = <span class="variable">$_FILES</span>[<span class="string">&#x27;upload_file&#x27;</span>][<span class="string">&#x27;tmp_name&#x27;</span>];</span><br><span class="line">    <span class="variable">$file_ext</span> = <span class="title function_ invoke__">substr</span>(<span class="variable">$file_name</span>,<span class="title function_ invoke__">strrpos</span>(<span class="variable">$file_name</span>,<span class="string">&quot;.&quot;</span>)+<span class="number">1</span>);</span><br><span class="line">    <span class="variable">$upload_file</span> = UPLOAD_PATH . <span class="string">&#x27;/&#x27;</span> . <span class="variable">$file_name</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(<span class="title function_ invoke__">move_uploaded_file</span>(<span class="variable">$temp_file</span>, <span class="variable">$upload_file</span>))&#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="title function_ invoke__">in_array</span>(<span class="variable">$file_ext</span>,<span class="variable">$ext_arr</span>))&#123;</span><br><span class="line">             <span class="variable">$img_path</span> = UPLOAD_PATH . <span class="string">&#x27;/&#x27;</span>. <span class="title function_ invoke__">rand</span>(<span class="number">10</span>, <span class="number">99</span>).<span class="title function_ invoke__">date</span>(<span class="string">&quot;YmdHis&quot;</span>).<span class="string">&quot;.&quot;</span>.<span class="variable">$file_ext</span>;</span><br><span class="line">             <span class="title function_ invoke__">rename</span>(<span class="variable">$upload_file</span>, <span class="variable">$img_path</span>);</span><br><span class="line">             <span class="variable">$is_upload</span> = <span class="literal">true</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="variable">$msg</span> = <span class="string">&quot;只允许上传.jpg|.png|.gif类型文件！&quot;</span>;</span><br><span class="line">            <span class="title function_ invoke__">unlink</span>(<span class="variable">$upload_file</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="variable">$msg</span> = <span class="string">&#x27;上传出错！&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>unlink($filename)</code>：表示删除文件。</li>
+</ul>
+<p>一句话木马：<code>&lt;?php fputs(fopen(&#39;1.php&#39;,&#39;w&#39;),&#39;&lt;?php @eval($_POST[&quot;cmd&quot;])?&gt;&#39;);?&gt;</code>：</p>
+<ul>
+<li><code>fputs()</code> 是 PHP 中用于将字符串写入文件的函数，语法：<code>fputs(resource $handle, string $string)</code>，**$handle<strong>是通过 <code>fopen()</code> 打开的文件句柄。</strong>$string**是要写入文件的字符串。</li>
+</ul>
+<p>python访问脚本：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">   url=<span class="string">&quot;http://192.168.1.100/upload-labs-master/upload/webshell.php&quot;</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    response=requests.get(url)</span><br><span class="line">       <span class="keyword">if</span>(response.status_code==<span class="number">200</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;over~!&quot;</span>)</span><br><span class="line">           <span class="keyword">break</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>PHP 是一种服务器端脚本语言，服务器在接收到对 PHP 文件的请求时会解析并执行其代码</strong>。</p>
+</li>
+<li><p>黑名单和白名单结合验证：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$is_upload</span> = <span class="literal">false</span>;</span><br><span class="line"><span class="variable">$msg</span> = <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">if</span>(!<span class="keyword">empty</span>(<span class="variable">$_FILES</span>[<span class="string">&#x27;upload_file&#x27;</span>]))&#123;</span><br><span class="line">    <span class="comment">//检查MIME</span></span><br><span class="line">    <span class="variable">$allow_type</span> = <span class="keyword">array</span>(<span class="string">&#x27;image/jpeg&#x27;</span>,<span class="string">&#x27;image/png&#x27;</span>,<span class="string">&#x27;image/gif&#x27;</span>);</span><br><span class="line">    <span class="keyword">if</span>(!<span class="title function_ invoke__">in_array</span>(<span class="variable">$_FILES</span>[<span class="string">&#x27;upload_file&#x27;</span>][<span class="string">&#x27;type&#x27;</span>],<span class="variable">$allow_type</span>))&#123;</span><br><span class="line">        <span class="variable">$msg</span> = <span class="string">&quot;禁止上传该类型文件!&quot;</span>;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="comment">//检查文件名</span></span><br><span class="line">        <span class="variable">$file</span> = <span class="keyword">empty</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;save_name&#x27;</span>]) ? <span class="variable">$_FILES</span>[<span class="string">&#x27;upload_file&#x27;</span>][<span class="string">&#x27;name&#x27;</span>] : <span class="variable">$_POST</span>[<span class="string">&#x27;save_name&#x27;</span>];</span><br><span class="line">        <span class="keyword">if</span> (!<span class="title function_ invoke__">is_array</span>(<span class="variable">$file</span>)) &#123;</span><br><span class="line">            <span class="variable">$file</span> = <span class="title function_ invoke__">explode</span>(<span class="string">&#x27;.&#x27;</span>, <span class="title function_ invoke__">strtolower</span>(<span class="variable">$file</span>));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="variable">$ext</span> = <span class="title function_ invoke__">end</span>(<span class="variable">$file</span>);</span><br><span class="line">        <span class="variable">$allow_suffix</span> = <span class="keyword">array</span>(<span class="string">&#x27;jpg&#x27;</span>,<span class="string">&#x27;png&#x27;</span>,<span class="string">&#x27;gif&#x27;</span>);</span><br><span class="line">        <span class="keyword">if</span> (!<span class="title function_ invoke__">in_array</span>(<span class="variable">$ext</span>, <span class="variable">$allow_suffix</span>)) &#123;</span><br><span class="line">            <span class="variable">$msg</span> = <span class="string">&quot;禁止上传该后缀文件!&quot;</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="variable">$file_name</span> = <span class="title function_ invoke__">reset</span>(<span class="variable">$file</span>) . <span class="string">&#x27;.&#x27;</span> . <span class="variable">$file</span>[<span class="title function_ invoke__">count</span>(<span class="variable">$file</span>) - <span class="number">1</span>];</span><br><span class="line">            <span class="variable">$temp_file</span> = <span class="variable">$_FILES</span>[<span class="string">&#x27;upload_file&#x27;</span>][<span class="string">&#x27;tmp_name&#x27;</span>];</span><br><span class="line">            <span class="variable">$img_path</span> = UPLOAD_PATH . <span class="string">&#x27;/&#x27;</span> .<span class="variable">$file_name</span>;</span><br><span class="line">            <span class="keyword">if</span> (<span class="title function_ invoke__">move_uploaded_file</span>(<span class="variable">$temp_file</span>, <span class="variable">$img_path</span>)) &#123;</span><br><span class="line">                <span class="variable">$msg</span> = <span class="string">&quot;文件上传成功！&quot;</span>;</span><br><span class="line">                <span class="variable">$is_upload</span> = <span class="literal">true</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="variable">$msg</span> = <span class="string">&quot;文件上传失败！&quot;</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="variable">$msg</span> = <span class="string">&quot;请选择要上传的文件！&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><code>empty($_POST[&#39;save_name&#39;]) ? $_FILES[&#39;upload_file&#39;][&#39;name&#39;] : $_POST[&#39;save_name&#39;]</code>：</p>
+<ol>
+<li><p><code>empty()</code>是一个 PHP 函数，用于检测一个变量是否为空。</p>
+</li>
+<li><p>三元运算符：<code>条件 ? 值1 : 值2;</code>，如果条件为真，则返回值1；为否则返回值2。</p>
+</li>
+</ol>
+</li>
+<li><p><code>$file = explode(&#39;.&#39;, strtolower($file))</code>：</p>
+<p><code>explode(string $delimiter, string $string):array</code>，<code>$delimiter</code>表示用于分割字符串的字符，<code>$string</code>表示要被分割的原始字符串。</p>
+</li>
+<li><p><code>$ext = end($file)</code>：<code>end()</code> 是 PHP 的一个内置函数，语法：<code>end(array)</code>，用于将数组的内部指针移动到数组的最后一个元素，并返回该元素的值。</p>
+</li>
+<li><p><code>$file_name = reset($file) . &#39;.&#39; . $file[count($file) - 1];</code>：</p>
+<ol>
+<li><code>reset()</code> 函数将数组指针移动到第一个元素，语法<code>reset(array)</code>并返回该元素的值。</li>
+<li><code>count()</code>是一个 PHP 函数，语法：<code>count(array)</code>，用于计算数组中的元素数量。</li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      <!--显示阅读次数-->
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">-ctf</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+       
+        
+      
+
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
   
     <article id="posts-sql-learning" class="article article-type-posts  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
@@ -1066,11 +1443,15 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">-frontend</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">-随笔</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">-frontend</a>
+                <a href="javascript:void(0)" class="js-tag color5">-ctf</a>
               </li>
              
               <li class="article-tag-list-item">
